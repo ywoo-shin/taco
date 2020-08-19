@@ -3,8 +3,10 @@ package com.jarry.taco.web;
 import com.jarry.taco.Ingredient;
 import com.jarry.taco.Order;
 import com.jarry.taco.Taco;
+import com.jarry.taco.User;
 import com.jarry.taco.data.IngredientRepository;
 import com.jarry.taco.data.TacoRepository;
+import com.jarry.taco.data.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,9 +31,10 @@ public class DesignTacoController {
 
     private final IngredientRepository ingredientRepo;
     private final TacoRepository tacoRepo;
+    private final UserRepository userRepository;
 
     @GetMapping
-    public String showDesignForm(Model model) {
+    public String showDesignForm(Model model, Principal principal) {
 
         List<Ingredient> ingredients = new ArrayList<>();
         ingredientRepo.findAll().forEach(ingredients::add);
@@ -40,7 +44,9 @@ public class DesignTacoController {
             model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
         }
 
-        model.addAttribute("taco", new Taco());
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username);
+        model.addAttribute("user", user);
 
         return "design";
     }
